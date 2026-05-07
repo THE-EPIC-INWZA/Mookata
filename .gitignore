@@ -1,0 +1,8 @@
+# ไม่เอาโฟลเดอร์ Library
+node_modules/
+
+# ไม่เอาไฟล์ความลับ
+.env
+
+# ไม่เอาไฟล์ Log (ถ้ามี)
+npm-debug.log

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mike's Macaroon Market</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>MOOKATA Market</h1>
+            <p>หมูแสนอร่อย ส่งตรงจาก Cloud</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="upload-section">
+            <h3>เพิ่มมาการองรสชาติใหม่</h3>
+            <form id="uploadForm">
+                <input type="text" name="name" placeholder="ชื่อหมู" required>
+                <div class="file-input">
+                    <label for="file">เลือกรูปภาพหมู 📸</label>
+                    <input type="file" id="file" name="image" accept="image/*" required>
+                </div>
+                <button type="submit" id="btnSubmit">บันทึกข้อมูล</button>
+            </form>
+        </section>
+
+        <hr>
+
+        <section>
+            <h3>รายการหมูทั้งหมด</h3>
+            <div id="productGrid" class="grid">
+                <p>กำลังโหลดความอร่อย...</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const productGrid = document.getElementById('productGrid');
+        const uploadForm = document.getElementById('uploadForm');
+
+        // 1. ฟังก์ชันดึงข้อมูลจาก API มาแสดงผล
+        async function loadProducts() {
+            const res = await fetch('/api/products');
+            const data = await res.json();
+            
+            productGrid.innerHTML = data.products.map(p => `
+                <div class="card">
+                    <img src="${p.image_url}" alt="${p.name}">
+                    <div class="card-info">
+                        <h4>${p.name}</h4>
+                        <p>ชิ้นละ 45.-</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 2. ฟังก์ชันอัปโหลดรูป
+        uploadForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            btn.innerText = 'กำลังอัปโหลด...';
+            btn.disabled = true;
+
+            const formData = new FormData(uploadForm);
+            await fetch('/upload', { method: 'POST', body: formData });
+            
+            alert('อัปโหลดสำเร็จ!');
+            uploadForm.reset();
+            btn.innerText = 'บันทึกข้อมูล';
+            btn.disabled = false;
+            loadProducts(); // รีโหลดรายการใหม่
+        };
+
+        loadProducts();
+    </script>
+</body>
+</html>
