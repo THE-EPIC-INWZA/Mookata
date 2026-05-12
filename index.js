@@ -73,6 +73,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         const finder = req.body.finder_name;
         const desc = req.body.description;
         const phone = req.body.contact; // ใน HTML ใช้ contact
+        const imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 
         // ตรวจสอบ log ใน Console ของ EC2 เพื่อดูว่าค่ามาจริงไหม
         console.log("Data received:", { name, finder, desc, phone });
