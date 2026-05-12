@@ -65,18 +65,32 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     }
 
     const file = req.file;
+    // ปรับให้เก็บไว้ใน folder 'products' ตามที่คุณตั้งใจ
     const fileName = `products/${Date.now()}_${file.originalname}`;
 
     try {
-        // ดึงค่าจาก req.body ให้ชื่อตรงกับ 'name' ใน HTML
-        const name = req.body.item_name; // ใน HTML ใช้ item_name
+        // --- ส่วนที่ขาดหายไป: การส่งไฟล์ไป S3 จริงๆ ---
+        const uploadParams = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: fileName,
+            Body: file.buffer, // ข้อมูลรูปภาพจาก memoryStorage
+            ContentType: file.mimetype,
+            // ACL: 'public-read' // หากคุณเปิด ACL ใน S3 แล้ว ให้เอาคอมเมนต์บรรทัดนี้ออก
+        };
+
+        await s3.send(new PutObjectCommand(uploadParams));
+        console.log("Successfully uploaded to S3:", fileName);
+        // ------------------------------------------
+
+        const name = req.body.item_name;
         const finder = req.body.finder_name;
         const desc = req.body.description;
-        const phone = req.body.contact; // ใน HTML ใช้ contact
+        const phone = req.body.contact;
+
+        // สร้าง URL ให้ถูกต้องตาม Region
         const imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 
-        // ตรวจสอบ log ใน Console ของ EC2 เพื่อดูว่าค่ามาจริงไหม
-        console.log("Data received:", { name, finder, desc, phone });
+        console.log("Saving to DB:", { name, imageUrl });
 
         const query = `
             INSERT INTO products (name, finder_name, description, contact_number, image_url) 
@@ -87,8 +101,8 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
         res.json({ status: "Success", url: imageUrl });
     } catch (err) {
-        console.error(err);
-        res.status(500).send(err.message);
+        console.error("Upload Error Details:", err);
+        res.status(500).send("Upload Failed: " + err.message);
     }
 });
 
