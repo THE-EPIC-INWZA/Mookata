@@ -6,3 +6,5 @@ node_modules/
 
 # ไม่เอาไฟล์ Log (ถ้ามี)
 npm-debug.log
+
+note.txt

@@ -1,5 +1,5 @@
 :root {
-    --primary: #ffb7c5; /* Pink */
+    --primary: #5d4037; /* Pink */
     --secondary: #98fb98; /* Mint */
     --text: #5d4037;
     --bg: #fffcf9;
@@ -15,11 +15,12 @@ body {
 .container { width: 90%; max-width: 1000px; margin: auto; }
 
 header {
-    background: linear-gradient(135deg, var(--primary), #ff9a9e);
+    background: linear-gradient(135deg, var(--primary), #5d4037);
     color: white;
     text-align: center;
-    padding: 40px 0;
+    padding: 20px 0;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    font-size: 150%;
 }
 
 .upload-section {
@@ -42,7 +43,7 @@ button {
     transition: 0.3s;
 }
 
-button:hover { background: #ff9eaa; transform: scale(1.02); }
+button:hover { background: #8a3b23; transform: scale(1.02); }
 
 .grid {
     display: grid;

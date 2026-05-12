@@ -3,25 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mike's Macaroon Market</title>
+    <title>LOST & FOUND</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>MOOKATA Market</h1>
-            <p>หมูแสนอร่อย ส่งตรงจาก Cloud</p>
+            <h1>Lost & Found</h1>
+            <p>ของหายหาได้</p>
         </div>
     </header>
 
     <main class="container">
         <section class="upload-section">
-            <h3>เพิ่มหมูใหม่</h3>
+            <h2  style="text-align: center;">เพิ่มรายการใหม่</h2>
             <form id="uploadForm">
-                <input type="text" name="name" placeholder="ชื่อหมู" required>
+                <h3>ชื่อของหาย</h3>
+                <input type="text" name="item_name" placeholder="เช่น รองเท้าแตะ" required>
+                <h3>ชื่อผู้เจอ</h3>
+                <input type="text" name="finder_name" placeholder="" required>
+                <h3>รายละเอียด</h3>
+                <input type="text" name="description" placeholder="สถานที่เจอ สภาพของ ตอนนี้อยู่กับใคร" required>
+                <h3>ช่องทางติดต่อ</h3>
+                <input type="text" name="contact" placeholder="เบอร์โทร" required>
                 <div class="file-input">
-                    <label for="file">เลือกรูปภาพหมู </label>
+                    <label for="file">เลือกรูปของหาย</label>
                     <input type="file" id="file" name="image" accept="image/*" required>
                 </div>
                 <button type="submit" id="btnSubmit">บันทึกข้อมูล</button>
@@ -31,9 +38,9 @@
         <hr>
 
         <section>
-            <h3>รายการหมูทั้งหมด</h3>
+            <h3>รายการของหายทั้งหมด</h3>
             <div id="productGrid" class="grid">
-                <p>กำลังโหลดความอร่อย...</p>
+                <p>กำลังโหลดข้อมูล...</p>
             </div>
         </section>
     </main>
@@ -41,6 +48,21 @@
     <script>
         const productGrid = document.getElementById('productGrid');
         const uploadForm = document.getElementById('uploadForm');
+
+        async function deleteProduct(id) {
+    if (confirm('คุณแน่ใจนะว่าจะลบไอเทมนี้?')) {
+        const response = await fetch(`/api/products/${id}`, {
+            method: 'DELETE', // ใช้ Method DELETE ตามหลักมาตรฐาน
+        });
+
+        if (response.ok) {
+            alert('ลบสำเร็จ!');
+            location.reload(); // รีโหลดหน้าเว็บเพื่อดูผลลัพธ์
+        } else {
+            alert('เกิดข้อผิดพลาดในการลบ');
+        }
+    }
+}
 
         // 1. ฟังก์ชันดึงข้อมูลจาก API มาแสดงผล
         async function loadProducts() {
@@ -51,8 +73,11 @@
                 <div class="card">
                     <img src="${p.image_url}" alt="${p.name}">
                     <div class="card-info">
-                        <h4>${p.name}</h4>
-                        <p>ชิ้นละ 45.-</p>
+                        <h2>${p.name}</h2>
+                        <h3>${p.finder_name}</h3>
+                        <p>${p.description}</p>
+                        <h4>${p.contact_number}</h4>
+                        <button onclick="deleteProduct(${p.id})">ลบรายการ</button>
                     </div>
                 </div>
             `).join('');

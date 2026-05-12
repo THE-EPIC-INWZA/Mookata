@@ -41,6 +41,23 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+
+// เพิ่ม Route สำหรับการลบโดยรับ parameter เป็น id
+app.delete('/api/products/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // ดึง ID จาก URL
+        
+        // ใช้คำสั่ง SQL DELETE
+        const query = 'DELETE FROM products WHERE id = $1';
+        await pool.query(query, [id]);
+
+        res.status(200).send('Product deleted successfully');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 // --- Route: อัปโหลดรูปไป S3 และเก็บ Link ลง RDS ---
 app.post('/upload', upload.single('image'), async (req, res) => {
     if (!req.file) {
@@ -63,8 +80,8 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
         // B. บันทึก Link รูปภาพลงใน RDS
         // หมายเหตุ: ตรวจสอบว่าใน RDS มี table ชื่อ products และ column name, image_url หรือยัง
-        await pool.query('INSERT INTO products (name, image_url) VALUES ($1, $2)', 
-            [req.body.name, imageUrl]);
+        await pool.query('INSERT INTO products (name,finder_name,description,contact_number, image_url) VALUES ($1, $2 ,$3 ,$4 ,$5)', 
+            [req.body.item_name,req.body.finder_name,req.body.description,contact, imageUrl]);
 
         res.json({ status: "Success", url: imageUrl });
     } catch (err) {
