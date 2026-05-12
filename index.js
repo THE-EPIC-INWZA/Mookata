@@ -81,7 +81,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         // B. บันทึก Link รูปภาพลงใน RDS
         // หมายเหตุ: ตรวจสอบว่าใน RDS มี table ชื่อ products และ column name, image_url หรือยัง
         await pool.query('INSERT INTO products (name,finder_name,description,contact_number, image_url) VALUES ($1, $2 ,$3 ,$4 ,$5)', 
-            [req.body.item_name,req.body.finder_name,req.body.description,contact, imageUrl]);
+            [req.body.item_name,req.body.finder_name,req.body.description,req.body.contact, imageUrl]);
 
         res.json({ status: "Success", url: imageUrl });
     } catch (err) {
