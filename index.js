@@ -68,20 +68,21 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     const fileName = `products/${Date.now()}_${file.originalname}`;
 
     try {
-        // A. ส่งไฟล์ไป S3
-        await s3.send(new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: fileName,
-            Body: file.buffer,
-            ContentType: file.mimetype
-        }));
+        // ดึงค่าจาก req.body ให้ชื่อตรงกับ 'name' ใน HTML
+        const name = req.body.item_name; // ใน HTML ใช้ item_name
+        const finder = req.body.finder_name;
+        const desc = req.body.description;
+        const phone = req.body.contact; // ใน HTML ใช้ contact
 
-        const imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+        // ตรวจสอบ log ใน Console ของ EC2 เพื่อดูว่าค่ามาจริงไหม
+        console.log("Data received:", { name, finder, desc, phone });
 
-        // B. บันทึก Link รูปภาพลงใน RDS
-        // หมายเหตุ: ตรวจสอบว่าใน RDS มี table ชื่อ products และ column name, image_url หรือยัง
-        await pool.query('INSERT INTO products (name,finder_name,description,contact_number, image_url) VALUES ($1, $2 ,$3 ,$4 ,$5)', 
-            [req.body.item_name,req.body.finder_name,req.body.description,req.body.contact, imageUrl]);
+        const query = `
+            INSERT INTO products (name, finder_name, description, contact_number, image_url) 
+            VALUES ($1, $2, $3, $4, $5)
+        `;
+        
+        await pool.query(query, [name, finder, desc, phone, imageUrl]);
 
         res.json({ status: "Success", url: imageUrl });
     } catch (err) {
